@@ -151,7 +151,7 @@ class MyAppState extends State<MyApp> {
                 child: new Column(
                   children: <Widget>[
 
-                    new Text('Your Location',textDirection: TextDirection.ltr,textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 50 )),
+                    new Text('Select City',textDirection: TextDirection.ltr,textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 50 )),
                     SizedBox(height: 20.0,),
                     DropdownButton(
                       iconEnabledColor: Colors.blue,
