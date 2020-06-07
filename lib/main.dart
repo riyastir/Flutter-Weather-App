@@ -8,8 +8,8 @@ import 'package:http/http.dart' as http;
 
 
 
-void main() => runApp(MyApp());
 
+void main() => runApp(MyApp());
 
 /// This Widget is the main application widget.
 class MyApp extends StatefulWidget{
@@ -189,7 +189,7 @@ class MyAppState extends State<MyApp> {
                           ),
                           new Container(
                             padding: EdgeInsets.all(10.0),
-                            width: 350,
+                            //width: 350,
                             //height: 300,
                             child: FutureBuilder<WeatherData>(
                               future: futureWeatherData,
@@ -199,9 +199,35 @@ class MyAppState extends State<MyApp> {
                                 } else if (snapshot.hasError) {
                                   return Text("${snapshot.error}");
                                 }
-
                                 // By default, show a loading spinner.
-                                return CircularProgressIndicator();
+                                return Container(
+                                  width: 300,
+                                  //height: 80,
+                                  color: Colors.white,
+                                  padding: EdgeInsets.all(20.0),
+                                  child: Row(
+                                    children:<Widget>[
+                                      Column(
+                                        children: <Widget>[
+                                          new CircularProgressIndicator(
+                                            backgroundColor: Colors.blue[900],
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        children: <Widget>[
+                                      Padding(
+                                          padding: const EdgeInsets.fromLTRB(30.0,0,0,0),
+                                          child: Text(
+                                          "Please Wait"
+                                          ),
+                                          ),
+                                          //new Text('Loading',textAlign: TextAlign.center),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                );
                               },
                             ),
                             //child: Text('Kuala Lumpur',textDirection: TextDirection.ltr,textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 30 )),
@@ -218,9 +244,7 @@ class MyAppState extends State<MyApp> {
                                 } else if (snapshot.hasError) {
                                   return Text("${snapshot.error}");
                                 }
-
-                                // By default, show a loading spinner.
-                                return CircularProgressIndicator();
+                                return Text('');
                               },
                             ),
                             //child: new Text('34\u00B0C',textDirection: TextDirection.ltr,textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 80 )),
