@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:weatherapp/home.dart';
 import 'package:weatherapp/addNewCity.dart';
-
+import 'package:weatherapp/provider/stateprovider.dart';
 
 void main() => runApp(EntryPoint());
 
@@ -22,13 +23,15 @@ class EntryPointState extends State<EntryPoint>{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: _title,
+      title: _title, 
       theme: ThemeData(
         primarySwatch: Colors.blue,
         canvasColor: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
+      home: ChangeNotifierProvider<StateProvider>(
+        create: (context) => StateProvider(),
+        child: Scaffold(
         //appBar: AppBar(title: const Text(_title)),
         body: tabs[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
@@ -44,9 +47,8 @@ class EntryPointState extends State<EntryPoint>{
           },
           backgroundColor: Colors.blue[900],
           type: BottomNavigationBarType.fixed,
-          //iconSize: 20,
         ),
-      ),
+      ),)
       
     );
   }

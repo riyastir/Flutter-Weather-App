@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:weatherapp/models/newCities.dart';
+import 'package:provider/provider.dart';
 import 'package:weatherapp/services/new_cities_service.dart';
+import 'package:loading_overlay/loading_overlay.dart';
+import 'package:weatherapp/provider/stateprovider.dart';
 
 class AddNewCity extends StatefulWidget {
   const AddNewCity({Key key}) : super(key: key);
@@ -14,17 +16,12 @@ class AddNewCity extends StatefulWidget {
 
 class AddNewCityState extends State<AddNewCity> {
   var _newCitiesService = CitiesService();
-  String _mySelection;
-  List apiCitiesData = List();
-  String apiCityData;
-  String _selectedCity = '';
-  List<dynamic> newCityData;
+  bool isLoading = false;
   @override
   void initState() {
-    //_dropdownMenuItems = buildDropDownMenuItems(_city);
-    //_selectedCity = _dropdownMenuItems[0].value;
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    stateProvider.setCityList == false ? getAPICities() : Container();
     super.initState();
-    getAPICities();
   }
 
   Future<String> getAPICities() async {
@@ -32,132 +29,129 @@ class AddNewCityState extends State<AddNewCity> {
         await http.get('https://alpha.riyas.co.in/api/weather/cities/');
     var jsonData = json.decode(apiCities.body);
 
-    setState(() {
-      apiCitiesData = jsonData;
-    });
-
-    print(jsonData);
+    final stateProvider = Provider.of<StateProvider>(context, listen: false);
+    stateProvider.updateapiCitiesData(jsonData);
     return 'Success';
   }
 
-  Future<String> getCityData() async {
-    final response =
-        await http.get('https://alpha.riyas.co.in/api/weather/city/Ipoh');
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      var jsonData = json.decode(response.body);
-      setState(() {
-        apiCityData = jsonData;
-      });
-      //await _newCitiesService.addNewCity(newCityId, newCityName, newCityLat, newCityLng);
-      return 'Success';
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load city data');
-    }
-  }
-
-  Future<dynamic> _addNewCitytoLocalDB(cityId) async{
-    
-    final response = await http.get('https://alpha.riyas.co.in/api/weather/city/$cityId');
-    var jsonData = json.decode(response.body);
-    //newCityData = jsonData;
-    await _newCitiesService.addNewCity(jsonData['id']+3, jsonData['city'], jsonData['lat'], jsonData['lng']);
+  Future<dynamic> _addNewCitytoLocalDB(cityId) async {
     setState(() {
-      _selectedCity = jsonData['city'];
-
+      isLoading = true;
+    });
+    final response =
+        await http.get('https://alpha.riyas.co.in/api/weather/city/$cityId');
+    var jsonData = json.decode(response.body);
+    await _newCitiesService.addNewCity(
+        jsonData['id'] + 3, jsonData['city'], jsonData['lat'], jsonData['lng']);
+    setState(() {
+      isLoading = false;
     });
     return 'Success';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.blue[900],
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(0.0),
-                  bottomRight: Radius.circular(0.0))),
-          margin: EdgeInsets.fromLTRB(0, 200, 0, 0),
-          padding: EdgeInsets.all(45.0),
-          //height: 220,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: <Widget>[
-              Text('Add City',
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 50)),
-              SizedBox(
-                height: 20.0,
-              ),
-              DropdownButton(
-                items: apiCitiesData.map((item) {
-                  return new DropdownMenuItem(
-                    child: new Text(item['city'],
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 20)),
-                    value: item['id'].toString(),
-                  );
-                }).toList(),
-                hint: Text('Select City',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20)),
-                onChanged: (newVal) {
-                  setState(() {
-                    _mySelection = newVal;
-                  });
-                },
-                value: _mySelection,
-              ),
-              RaisedButton(
-                onPressed: ()=>_addNewCitytoLocalDB(this._mySelection),
-                textColor: Colors.white,
-                padding: const EdgeInsets.all(0.0),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
+    return LoadingOverlay(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+            child: Container(
+              child: Column(children: <Widget>[
+                Container(
+                  decoration: BoxDecoration(
+                      color: Colors.blue[900],
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(0.0),
+                          bottomRight: Radius.circular(0.0))),
+                  margin: EdgeInsets.fromLTRB(0, 200, 0, 0),
+                  padding: EdgeInsets.all(45.0),
+                  //height: 220,
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: <Widget>[
+                      Text('Add City',
+                          textDirection: TextDirection.ltr,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 50)),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      DropdownButton(
+                        items: Provider.of<StateProvider>(context)
+                            .apiCitiesData
+                            .map((item) {
+                          return new DropdownMenuItem(
+                            child: new Text(item['city'],
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 20)),
+                            value: item['id'].toString(),
+                          );
+                        }).toList(),
+                        hint: Text('Select City',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 20)),
+                        onChanged: Provider.of<StateProvider>(context)
+                            .onChangeListCity,
+                        value: Provider.of<StateProvider>(context)
+                            .selectedListCity,
+                      ),
+                      RaisedButton(
+                        onPressed: () => _addNewCitytoLocalDB(
+                            Provider.of<StateProvider>(context, listen: false)
+                                .selectedListCity),
+                        textColor: Colors.white,
+                        padding: const EdgeInsets.all(0.0),
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.blue,
+                          ),
+                          padding: const EdgeInsets.all(10.0),
+                          child: const Text('Add City',
+                              style: TextStyle(fontSize: 20)),
+                        ),
+                      ),
+                    ],
                   ),
-                  padding: const EdgeInsets.all(10.0),
-                  child: const Text('Add City', style: TextStyle(fontSize: 20)),
                 ),
-              ),
-              //Text(_selectedCity),
-            ],
+              ]),
+            ),
           ),
         ),
-      ]),
-    );
-  }
-}
-
-class NewCity {
-  final int id;
-  final String name;
-  final double lat;
-  final double lng;
-
-  NewCity({this.id, this.name, this.lat, this.lng});
-
-  factory NewCity.fromJson(Map<String, dynamic> json) {
-    return NewCity(
-      id: json['id'],
-      name: json['name'],
-      lat: json['lat'],
-      lng: json['lng'],
-    );
+        isLoading: isLoading,
+        opacity: 0.5,
+        progressIndicator: Center(
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 300,
+                padding: EdgeInsets.all(20.0),
+                color: Colors.white,
+                margin: EdgeInsets.fromLTRB(50.0, 0, 0, 0),
+                child: Row(
+                  children: <Widget>[
+                    CircularProgressIndicator(
+                        backgroundColor: Colors.blue[900]),
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(30.0, 0, 0, 0),
+                          child: Text("Adding City"),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
