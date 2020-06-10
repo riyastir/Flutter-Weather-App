@@ -129,6 +129,7 @@ class AddNewCityState extends State<AddNewCity> {
         opacity: 0.5,
         progressIndicator: Center(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
                 width: 300,
