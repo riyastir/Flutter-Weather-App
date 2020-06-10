@@ -124,7 +124,7 @@ class HomeState extends State<Home> {
                             bottomRight: Radius.circular(50.0))),
                     padding: EdgeInsets.all(45.0),
                     height: 220,
-                    width: 600,
+                    width: MediaQuery.of(context).size.width,
                     child: new Column(
                       children: <Widget>[
                         new Text('Select City',
@@ -167,7 +167,8 @@ class HomeState extends State<Home> {
                             children: <Widget>[
                               new Container(
                                 padding: EdgeInsets.all(10.0),
-                                width: 350,
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height/8,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -184,17 +185,17 @@ class HomeState extends State<Home> {
                                 padding: EdgeInsets.all(10.0),
                                 child: FutureBuilder<WeatherData>(
                                   future: futureWeatherData,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Text(snapshot.data.title,
+                                  builder: (context, weather) {
+                                    if (weather.hasData) {
+                                      return Text(weather.data.title,
                                           textDirection: TextDirection.ltr,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                               fontSize: 30));
-                                    } else if (snapshot.hasError) {
-                                      return Text("${snapshot.error}");
+                                    } else if (weather.hasError) {
+                                      return Text("${weather.error}");
                                     }
                                     return Container();
                                   },
@@ -206,18 +207,18 @@ class HomeState extends State<Home> {
                                 height: 150,
                                 child: FutureBuilder<WeatherData>(
                                   future: futureWeatherData,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
+                                  builder: (context, weather) {
+                                    if (weather.hasData) {
                                       return Text(
-                                          snapshot.data.temp + '\u00B0C',
+                                          weather.data.temp + '\u00B0C',
                                           textDirection: TextDirection.ltr,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white,
-                                              fontSize: 80));
-                                    } else if (snapshot.hasError) {
-                                      return Text("${snapshot.error}");
+                                              fontSize: 70));
+                                    } else if (weather.hasError) {
+                                      return Text("${weather.error}");
                                     }
                                     return Text('');
                                   },
@@ -238,6 +239,7 @@ class HomeState extends State<Home> {
         opacity: 0.5,
         progressIndicator: Center(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
                 width: 300,
